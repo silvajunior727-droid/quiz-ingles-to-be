@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: Presente Simples do Verbo 'To Be'</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            min-height: 400px;
+            box-sizing: border-box;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #444;
+        }
+        
+        #timer-display {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .question-card, .results-card, .intro-card {
+            display: none;
+            flex-direction: column;
+        }
+
+        .intro-card {
+            display: flex;
+            text-align: center;
+        }
+        
+        .intro-card input {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .option-item:hover {
+            background-color: #d1e7dd;
+        }
+        
+        .option-item.correct {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .option-item.incorrect {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .justification {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 5px solid #007bff;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .feedback.correct-text {
+            color: #28a745;
+        }
+        
+        .feedback.incorrect-text {
+            color: #dc3545;
+        }
+
+        .next-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            display: none;
+            float: right;
+        }
+        
+        .start-btn, .restart-btn, .send-report-btn {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .restart-btn {
+            background-color: #dc3545;
+        }
+        
+        .send-report-btn {
+            background-color: #6c757d;
+        }
+        
+        .results-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        .results-card .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 10px;
+        }
+
+        .attempts-counter {
+            text-align: right;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .question-counter {
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="intro-card" class="intro-card">
+            <h1>Quiz de Inglês</h1>
+            <h2>Presente Simples do Verbo 'To Be'</h2>
+            <p>Por favor, insira seu nome e e-mail para começar o teste. Ele tem 15 questões e você terá 3 minutos para completá-lo. Você tem <span id="intro-attempts-left">2</span> tentativas para fazer este teste.</p>
+            <input type="text" id="student-name" placeholder="Seu nome">
+            <input type="email" id="student-email" placeholder="Seu e-mail do Gmail">
+            <button class="start-btn" onclick="startQuiz()">Iniciar Teste</button>
+        </div>
+
+        <div id="quiz-card" class="question-card">
+            <div id="timer-display">Tempo: 03:00</div>
+            <div class="attempts-counter">Tentativas Restantes: <span id="attempts-left">2</span></div>
+            <div class="question-counter">Questão <span id="current-question-num">1</span> de 15</div>
+            <div id="question-text" class="question-text"></div>
+            <ul id="options-list" class="options-list"></ul>
+            <button id="next-button" class="next-btn">Próxima Questão</button>
+        </div>
+
+        <div id="results-card" class="results-card">
+            <h1>Relatório Final</h1>
+            <p><strong>Nome:</strong> <span id="report-student-name"></span></p>
+            <p><strong>Pontuação:</strong> <span id="score-display"></span></p>
+            <p><strong>Classificação:</strong> <span id="classification-display"></span></p>
+            <p><strong>Tempo Restante:</strong> <span id="report-timer-display"></span></p>
+            <a id="send-report-link" class="send-report-btn" href="#" target="_blank">Enviar Relatório ao Professor</a>
+            <button class="restart-btn" onclick="restartQuiz()">Reiniciar Teste</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        // COLE AQUI A URL COMPLETA DO SEU GOOGLE APPS SCRIPT
+        const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-lXcYXrah5e4FcucQCJLmXGiOIiTFoGiRxOP0Eo2VyIj_-svJ_rY1oh-k2ma_bK18/exec'; 
+
+        const studentNameInput = document.getElementById('student-name');
+        const studentEmailInput = document.getElementById('student-email');
+        const introCard = document.getElementById('intro-card');
+        const quizCard = document.getElementById('quiz-card');
+        const resultsCard = document.getElementById('results-card');
+        const questionText = document.getElementById('question-text');
+        const optionsList = document.getElementById('options-list');
+        const nextButton = document.getElementById('next-button');
+        const timerDisplay = document.getElementById('timer-display');
+        const attemptsLeftSpan = document.getElementById('attempts-left');
+        const currentQuestionNumSpan = document.getElementById('current-question-num');
+        const scoreDisplay = document.getElementById('score-display');
+        const classificationDisplay = document.getElementById('classification-display');
+        const reportStudentName = document.getElementById('report-student-name');
+        const reportTimerDisplay = document.getElementById('report-timer-display');
+        const sendReportLink = document.getElementById('send-report-link');
+        const introAttemptsLeftSpan = document.getElementById('intro-attempts-left');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeLeft = 180;
+        let timerInterval;
+        const totalAttempts = 2;
+        
+        const questions = [
+            {
+                question: "Qual a forma correta do verbo 'to be' para a frase: 'She ___ a student.'?",
+                options: [
+                    { text: "am", isCorrect: false, rationale: "A forma 'am' é usada apenas com o pronome 'I'." },
+                    { text: "is", isCorrect: true, rationale: "A forma 'is' é usada com os pronomes 'he', 'she' e 'it'." },
+                    { text: "are", isCorrect: false, rationale: "A forma 'are' é usada com os pronomes 'you', 'we' e 'they'." },
+                    { text: "be", isCorrect: false, rationale: "A forma 'be' é a forma base do verbo e não é usada para conjugar no presente simples." }
+                ]
+            },
+            {
+                question: "Complete a frase: 'We ___ happy.'",
+                options: [
+                    { text: "is", isCorrect: false, rationale: "A forma 'is' é usada com a terceira pessoa do singular (he, she, it)." },
+                    { text: "am", isCorrect: false, rationale: "A forma 'am' é usada apenas com a primeira pessoa do singular (I)." },
+                    { text: "are", isCorrect: true, rationale: "A forma 'are' é a forma correta para a primeira pessoa do plural (we)." },
+                    { text: "has", isCorrect: false, rationale: "A forma 'has' é a conjugação do verbo 'to have', não do 'to be'." }
+                ]
+            },
+            {
+                question: "Qual a forma negativa de 'You are from Brazil.'?",
+                options: [
+                    { text: "You aren't from Brazil.", isCorrect: true, rationale: "Para formar a negativa, basta adicionar 'not' (ou a forma contraída 'n't') depois do verbo 'to be'." },
+                    { text: "You not are from Brazil.", isCorrect: false, rationale: "O 'not' deve vir depois do verbo 'to be', não antes." },
+                    { text: "You no are from Brazil.", isCorrect: false, rationale: "A palavra 'no' não é usada para negar verbos em inglês desta forma." },
+                    { text: "Are you not from Brazil?", isCorrect: false, rationale: "Esta é a forma interrogativa, não a negativa." }
+                ]
+            },
+            {
+                question: "Crie uma pergunta com 'They ___ doctors.'",
+                options: [
+                    { text: "They is doctors?", isCorrect: false, rationale: "A forma 'is' é incorreta para o pronome 'they'." },
+                    { text: "Are they doctors?", isCorrect: true, rationale: "Para formar uma pergunta, inverte-se a posição do verbo 'to be' com o sujeito." },
+                    { text: "Do they are doctors?", isCorrect: false, rationale: "Não se usa o verbo auxiliar 'do' com o verbo 'to be' para formar perguntas." },
+                    { text: "They are doctors?", isCorrect: false, rationale: "Esta é a forma afirmativa com um ponto de interrogação. A ordem das palavras está incorreta para uma pergunta formal." }
+                ]
+            },
+            {
+                question: "Complete a frase: 'I ___ not a student.'",
+                options: [
+                    { text: "are", isCorrect: false, rationale: "A forma 'are' é incorreta para o pronome 'I'." },
+                    { text: "is", isCorrect: false, rationale: "A forma 'is' é usada apenas com 'he', 'she' e 'it'." },
+                    { text: "am", isCorrect: true, rationale: "A forma 'am' é a correta para o pronome 'I' no presente simples. 'I am not' é a forma negativa." },
+                    { text: "do", isCorrect: false, rationale: "O verbo 'do' não é usado aqui, pois a frase já contém o verbo 'to be'." }
+                ]
+            },
+            {
+                question: "Qual a contração de 'It is cold today.'?",
+                options: [
+                    { text: "It's cold today.", isCorrect: true, rationale: "A contração de 'it is' é 'it's'." },
+                    { text: "Its cold today.", isCorrect: false, rationale: "'Its' é um pronome possessivo e não uma contração." },
+                    { text: "It are cold today.", isCorrect: false, rationale: "A forma 'are' é incorreta para o pronome 'it'." },
+                    { text: "It be cold today.", isCorrect: false, rationale: "Esta é a forma base do verbo 'to be' e não é usada no presente simples." }
+                ]
+            },
+            {
+                question: "Complete a frase: 'They ___ in the park.'",
+                options: [
+                    { text: "is", isCorrect: false, rationale: "A forma 'is' é usada com a terceira pessoa do singular (he, she, it)." },
+                    { text: "are", isCorrect: true, rationale: "A forma 'are' é usada com a terceira pessoa do plural (they)." },
+                    { text: "am", isCorrect: false, rationale: "A forma 'am' é usada apenas com o pronome 'I'." },
+                    { text: "was", isCorrect: false, rationale: "A forma 'was' é a conjugação do verbo 'to be' no passado simples." }
+                ]
+            },
+            {
+                question: "Complete a pergunta: '___ you a teacher?'",
+                options: [
+                    { text: "Am", isCorrect: false, rationale: "A forma 'Am' é usada para o pronome 'I'." },
+                    { text: "Is", isCorrect: false, rationale: "A forma 'Is' é usada para os pronomes 'he', 'she' e 'it'." },
+                    { text: "Are", isCorrect: true, rationale: "A forma 'Are' é a correta para o pronome 'you'." },
+                    { text: "Do", isCorrect: false, rationale: "Não se usa o verbo auxiliar 'do' com o verbo 'to be' para formar perguntas." }
+                ]
+            },
+            {
+                question: "Qual a forma correta para: 'He ___ from France.'?",
+                options: [
+                    { text: "is", isCorrect: true, rationale: "A forma 'is' é a correta para o pronome 'he'." },
+                    { text: "are", isCorrect: false, rationale: "A forma 'are' é incorreta para o pronome 'he'." },
+                    { text: "am", isCorrect: false, rationale: "A forma 'am' é usada apenas com o pronome 'I'." },
+                    { text: "be", isCorrect: false, rationale: "A forma 'be' é a forma base e não é usada para conjugar no presente simples." }
+                ]
+            },
+            {
+                question: "Qual a forma negativa de 'She is my sister.'?",
+                options: [
+                    { text: "She not is my sister.", isCorrect: false, rationale: "O 'not' deve vir depois do verbo 'to be'." },
+                    { text: "She is not my sister.", isCorrect: true, rationale: "Para formar a negativa, o 'not' é colocado após o verbo 'to be'." },
+                    { text: "Is she not my sister?", isCorrect: false, rationale: "Esta é uma forma de pergunta negativa." },
+                    { text: "She no is my sister.", isCorrect: false, rationale: "A palavra 'no' não é usada para negar verbos desta forma." }
+                ]
+            },
+            {
+                question: "Qual a forma interrogativa de 'You are happy.'?",
+                options: [
+                    { text: "You are happy?", isCorrect: false, rationale: "Esta é a forma afirmativa com uma entonação de pergunta, mas a estrutura gramatical está incorreta para uma pergunta formal." },
+                    { text: "Are you happy?", isCorrect: true, rationale: "Para formar perguntas com 'to be', inverte-se a ordem do verbo e do sujeito." },
+                    { text: "Do you are happy?", isCorrect: false, rationale: "Não se usa 'do' ou 'does' para fazer perguntas com o verbo 'to be'." },
+                    { text: "You happy are?", isCorrect: false, rationale: "A ordem das palavras está incorreta." }
+                ]
+            },
+            {
+                question: "Complete a frase: 'It ___ a beautiful day.'",
+                options: [
+                    { text: "am", isCorrect: false, rationale: "A forma 'am' é usada apenas com o pronome 'I'." },
+                    { text: "are", isCorrect: false, rationale: "A forma 'are' é usada com pronomes plurais (you, we, they)." },
+                    { text: "is", isCorrect: true, rationale: "A forma 'is' é usada com o pronome 'it'." },
+                    { text: "be", isCorrect: false, rationale: "A forma 'be' é a forma base e não é usada para conjugar no presente simples." }
+                ]
+            },
+            {
+                question: "Qual a forma negativa de 'He is my brother.'?",
+                options: [
+                    { text: "He is not my brother.", isCorrect: true, rationale: "Para formar a negativa, adiciona-se 'not' após o verbo 'to be'." },
+                    { text: "He not is my brother.", isCorrect: false, rationale: "O 'not' deve vir depois do verbo 'to be'." },
+                    { text: "He isn't my brother.", isCorrect: true, rationale: "Esta é a forma contraída e também está correta." },
+                    { text: "Is he not my brother?", isCorrect: false, rationale: "Esta é a forma de pergunta negativa." }
+                ]
+            },
+            {
+                question: "Complete a frase: 'They ___ not at home.'",
+                options: [
+                    { text: "are", isCorrect: true, rationale: "A forma 'are' é a correta para o pronome 'they'." },
+                    { text: "is", isCorrect: false, rationale: "A forma 'is' é incorreta para o pronome 'they'." },
+                    { text: "am", isCorrect: false, rationale: "A forma 'am' é usada apenas com o pronome 'I'." },
+                    { text: "do", isCorrect: false, rationale: "Não se usa 'do' para negar com o verbo 'to be'." }
+                ]
+            },
+            {
+                question: "Qual a forma correta para 'I ___ a teacher.'?",
+                options: [
+                    { text: "am", isCorrect: true, rationale: "A forma 'am' é a única usada com o pronome 'I' no presente simples." },
+                    { text: "is", isCorrect: false, rationale: "A forma 'is' é usada com 'he', 'she' e 'it'." },
+                    { text: "are", isCorrect: false, rationale: "A forma 'are' é usada com 'you', 'we' e 'they'." },
+                    { text: "be", isCorrect: false, rationale: "A forma 'be' é a forma base e não a conjugação do verbo no presente simples." }
+                ]
+            }
+        ];
+        
+        // --- Funções do Cronômetro (Contagem regressiva) ---
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `Tempo: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showResults();
+                    alert("O tempo acabou!");
+                }
+            }, 1000);
+        }
+
+        // --- Funções do Quiz ---
+        function startQuiz() {
+            const studentName = studentNameInput.value.trim();
+            const studentEmail = studentEmailInput.value.trim();
+
+            if (studentName === "" || studentEmail === "") {
+                alert("Por favor, insira seu nome e e-mail para começar.");
+                return;
+            }
+            
+            const storageKey = `quiz_attempts_${studentEmail}`;
+            let attempts = parseInt(localStorage.getItem(storageKey) || 0);
+
+            if (attempts >= totalAttempts) {
+                alert(`Você já usou todas as ${totalAttempts} tentativas para este e-mail.`);
+                return;
+            }
+
+            localStorage.setItem(storageKey, attempts + 1);
+            
+            updateAttemptsDisplay(studentEmail);
+
+            introCard.style.display = 'none';
+            quizCard.style.display = 'flex';
+
+            score = 0;
+            currentQuestionIndex = 0;
+            timeLeft = 180;
+            
+            startTimer();
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            if (currentQuestionIndex >= questions.length || timeLeft <= 0) {
+                showResults();
+                return;
+            }
+            
+            currentQuestionNumSpan.textContent = currentQuestionIndex + 1;
+            nextButton.style.display = 'none';
+            optionsList.innerHTML = '';
+            
+            const currentQuestion = questions[currentQuestionIndex];
+            questionText.textContent = currentQuestion.question;
+            
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.className = 'option-item';
+                li.textContent = option.text;
+                li.onclick = () => selectOption(li, option);
+                optionsList.appendChild(li);
+            });
+        }
+        
+        function selectOption(selectedElement, selectedOption) {
+            const options = document.querySelectorAll('.option-item');
+            
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            const justificationElement = document.createElement('div');
+            justificationElement.className = 'justification';
+            justificationElement.textContent = selectedOption.rationale;
+            
+            if (selectedOption.isCorrect) {
+                selectedElement.classList.add('correct');
+                score++;
+                justificationElement.style.borderColor = '#28a745';
+            } else {
+                selectedElement.classList.add('incorrect');
+                const correctOption = questions[currentQuestionIndex].options.find(opt => opt.isCorrect);
+                const correctElement = Array.from(options).find(el => el.textContent === correctOption.text);
+                if (correctElement) {
+                    correctElement.classList.add('correct');
+                }
+                justificationElement.style.borderColor = '#dc3545';
+            }
+            
+            selectedElement.parentNode.insertBefore(justificationElement, selectedElement.nextSibling);
+            justificationElement.style.display = 'block';
+            
+            nextButton.style.display = 'block';
+        }
+        
+        nextButton.onclick = () => {
+            currentQuestionIndex++;
+            displayQuestion();
+        };
+
+        function getClassification(score) {
+            if (score >= 0 && score <= 5) return "insatisfatório";
+            if (score >= 6 && score <= 10) return "bom";
+            if (score >= 11 && score <= 15) return "excelente";
+            return "Classificação não disponível";
+        }
+
+        // FUNÇÃO QUE DISPARA O EFEITO PIROTÉCNICO/CONFETE (TRIPLICADO)
+        function launchConfetti() {
+            // Efeito principal triplicado
+            confetti({
+                particleCount: 600, 
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            // Efeitos extras para um visual mais completo
+            setTimeout(() => {
+                confetti({
+                    particleCount: 450,
+                    spread: 90,
+                    origin: { x: 0, y: 0.8 }
+                });
+            }, 500);
+
+            setTimeout(() => {
+                confetti({
+                    particleCount: 450,
+                    spread: 90,
+                    origin: { x: 1, y: 0.8 }
+                });
+            }, 800);
+            
+            // Um quarto disparo para um efeito ainda mais completo
+            setTimeout(() => {
+                confetti({
+                    particleCount: 300,
+                    spread: 120,
+                    origin: { y: 0.2 }
+                });
+            }, 1000);
+        }
+        
+        function showResults() {
+            clearInterval(timerInterval);
+            quizCard.style.display = 'none';
+            resultsCard.style.display = 'block';
+
+            const studentName = studentNameInput.value;
+            const studentEmail = studentEmailInput.value;
+            const classification = getClassification(score);
+            const minutesLeft = Math.floor(timeLeft / 60);
+            const secondsLeft = timeLeft % 60;
+            const timeLeftFormatted = `${minutesLeft.toString().padStart(2, '0')}:${secondsLeft.toString().padStart(2, '0')}`;
+            
+            reportStudentName.textContent = studentName;
+            reportTimerDisplay.textContent = timeLeftFormatted;
+            
+            scoreDisplay.textContent = `${score} de ${questions.length}`;
+            classificationDisplay.textContent = classification;
+
+            // VERIFICA SE O ALUNO ACERTOU TUDO PARA DISPARAR O EFEITO
+            if (score === questions.length) {
+                launchConfetti();
+            }
+
+            const data = {
+                nome: studentName,
+                email: studentEmail,
+                pontuacao: `${score} de ${questions.length}`,
+                classificacao: classification,
+                tempo: timeLeftFormatted
+            };
+
+            fetch(APP_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                mode: 'no-cors'
+            })
+            .then(response => {
+                console.log('Dados enviados com sucesso para a planilha!');
+            })
+            .catch(error => {
+                console.error('Erro ao enviar dados:', error);
+                alert('Erro ao enviar os resultados. Por favor, tente novamente mais tarde.');
+            });
+            
+            sendReportLink.textContent = 'Relatório Enviado!';
+            sendReportLink.href = '#';
+            sendReportLink.onclick = (e) => e.preventDefault();
+            sendReportLink.style.cursor = 'default';
+            sendReportLink.style.backgroundColor = '#ccc';
+        }
+
+        function updateAttemptsDisplay(email) {
+            const attempts = email ? parseInt(localStorage.getItem(`quiz_attempts_${email}`) || 0) : 0;
+            const attemptsRemaining = totalAttempts - attempts;
+            
+            attemptsLeftSpan.textContent = attemptsRemaining;
+            introAttemptsLeftSpan.textContent = attemptsRemaining;
+
+            const startBtn = document.querySelector('.start-btn');
+            if (attemptsRemaining <= 0) {
+                startBtn.disabled = true;
+                startBtn.textContent = 'Tentativas Esgotadas';
+                startBtn.style.backgroundColor = '#ccc';
+            } else {
+                startBtn.disabled = false;
+                startBtn.textContent = 'Iniciar Teste';
+                startBtn.style.backgroundColor = '#28a745';
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            timeLeft = 180;
+            introCard.style.display = 'flex';
+            resultsCard.style.display = 'none';
+            
+            updateAttemptsDisplay(studentEmailInput.value);
+        }
+
+        studentEmailInput.addEventListener('input', (e) => {
+            updateAttemptsDisplay(e.target.value);
+        });
+        
+        window.onload = function() {
+            updateAttemptsDisplay(studentEmailInput.value);
+        }
+    </script>
+</body>
+</html>
